@@ -50,7 +50,7 @@
 		<dependency>
 			<groupId>gpsUtil</groupId>
 			<artifactId>gpsUtil</artifactId>
-			<version>3.1.1</version>
+			<version>1.0.0</version>
 		</dependency>
 
 		<dependency>
