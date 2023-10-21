@@ -1,4 +1,6 @@
 {
     "java.configuration.updateBuildConfiguration": "interactive",
     "maven.pomfile.autoUpdateEffectivePOM": false
+
 }
+
