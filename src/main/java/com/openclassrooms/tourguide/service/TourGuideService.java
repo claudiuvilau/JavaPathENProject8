@@ -1,10 +1,5 @@
 package com.openclassrooms.tourguide.service;
 
-import com.openclassrooms.tourguide.helper.InternalTestHelper;
-import com.openclassrooms.tourguide.tracker.Tracker;
-import com.openclassrooms.tourguide.user.User;
-import com.openclassrooms.tourguide.user.UserReward;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -14,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,11 +18,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.openclassrooms.tourguide.helper.InternalTestHelper;
+import com.openclassrooms.tourguide.tracker.Tracker;
+import com.openclassrooms.tourguide.user.User;
+import com.openclassrooms.tourguide.user.UserReward;
+
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
-
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -42,7 +42,7 @@ public class TourGuideService {
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
 		this.gpsUtil = gpsUtil;
 		this.rewardsService = rewardsService;
-		
+
 		Locale.setDefault(Locale.US);
 
 		if (testMode) {
@@ -97,11 +97,32 @@ public class TourGuideService {
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
 		List<Attraction> nearbyAttractions = new ArrayList<>();
+
+		Map<Double, Attraction> mapDoubleAttraction = new HashMap<>();
+
+		double distanceAttrToVisited;
 		for (Attraction attraction : gpsUtil.getAttractions()) {
-			if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-				nearbyAttractions.add(attraction);
-			}
+			distanceAttrToVisited = rewardsService.getDistance(attraction, visitedLocation.location);
+			mapDoubleAttraction.put(distanceAttrToVisited, attraction);
 		}
+
+		TreeMap<Double, Attraction> sortedMapDoubleAttraction = new TreeMap<>(mapDoubleAttraction);
+
+		// only 5 tourist attractions to the user
+		int attrNearUser = 5;
+		for (Map.Entry<Double, Attraction> entrySortedMapDoubleAttraction : sortedMapDoubleAttraction.entrySet()) {
+			Attraction valueAttraction = entrySortedMapDoubleAttraction.getValue();
+			nearbyAttractions.add(valueAttraction);
+			if (nearbyAttractions.size() == attrNearUser) {
+				break; // if the attrNearUser number => exit for
+			}
+
+		}
+
+		// if (rewardsService.isWithinAttractionProximity(attraction,
+		// visitedLocation.location)) {
+		// nearbyAttractions.add(attraction);
+		// }
 
 		return nearbyAttractions;
 	}
