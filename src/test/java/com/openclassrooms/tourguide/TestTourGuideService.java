@@ -8,12 +8,12 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
+import com.openclassrooms.tourguide.model.AttractionsNearUser;
 import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.TourGuideService;
 import com.openclassrooms.tourguide.user.User;
 
 import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
 import tripPricer.Provider;
@@ -102,7 +102,7 @@ class TestTourGuideService {
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
 
-		List<Attraction> attractions = tourGuideService.getNearByAttractions(visitedLocation);
+		List<AttractionsNearUser> attractions = tourGuideService.getNearByAttractions(visitedLocation);
 
 		tourGuideService.tracker.stopTracking();
 

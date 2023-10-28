@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
+import com.openclassrooms.tourguide.model.AttractionsNearUser;
 import com.openclassrooms.tourguide.tracker.Tracker;
 import com.openclassrooms.tourguide.user.User;
 import com.openclassrooms.tourguide.user.UserReward;
@@ -27,6 +28,7 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import rewardCentral.RewardCentral;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -95,8 +97,9 @@ public class TourGuideService {
 		return visitedLocation;
 	}
 
-	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-		List<Attraction> nearbyAttractions = new ArrayList<>();
+	public List<AttractionsNearUser> getNearByAttractions(VisitedLocation visitedLocation) {
+		// List<Attraction> nearbyAttractions = new ArrayList<>();
+		List<AttractionsNearUser> nearbyAttractions = new ArrayList<>();
 
 		Map<Double, Attraction> mapDoubleAttraction = new HashMap<>();
 
@@ -108,11 +111,28 @@ public class TourGuideService {
 
 		TreeMap<Double, Attraction> sortedMapDoubleAttraction = new TreeMap<>(mapDoubleAttraction);
 
+		AttractionsNearUser attractionsNearUser;
+		int rewardPoints;
+		RewardCentral rewardCentral = new RewardCentral();
+
 		// only 5 tourist attractions to the user
 		int attrNearUser = 5;
 		for (Map.Entry<Double, Attraction> entrySortedMapDoubleAttraction : sortedMapDoubleAttraction.entrySet()) {
+			double keyDistance = entrySortedMapDoubleAttraction.getKey();
 			Attraction valueAttraction = entrySortedMapDoubleAttraction.getValue();
-			nearbyAttractions.add(valueAttraction);
+			attractionsNearUser = new AttractionsNearUser();
+			attractionsNearUser.setAttractionName(valueAttraction.attractionName);
+			attractionsNearUser.setDistanceMiles(keyDistance);
+			attractionsNearUser.setLatitudeAttraction(valueAttraction.latitude);
+			attractionsNearUser.setLongitudeAttraction(valueAttraction.longitude);
+			attractionsNearUser.setLatitudeUser(visitedLocation.location.latitude);
+			attractionsNearUser.setLongitudeUser(visitedLocation.location.longitude);
+
+			rewardPoints = rewardCentral.getAttractionRewardPoints(valueAttraction.attractionId,
+					visitedLocation.userId);
+			attractionsNearUser.setRewardPoints(rewardPoints);
+
+			nearbyAttractions.add(attractionsNearUser);
 			if (nearbyAttractions.size() == attrNearUser) {
 				break; // if the attrNearUser number => exit for
 			}
