@@ -1,6 +1,7 @@
 package com.openclassrooms.tourguide.service;
 
-import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.stereotype.Service;
 
@@ -37,21 +38,28 @@ public class RewardsService {
 		proximityBuffer = defaultProximityBuffer;
 	}
 
-	public void calculateRewards(User user) {
-		List<VisitedLocation> userLocations = user.getVisitedLocations();
-		List<Attraction> attractions = gpsUtil.getAttractions();
+	public void calculateRewards(User user) throws InterruptedException, ExecutionException {
+
+		// List<VisitedLocation> userLocations = user.getVisitedLocations();
+		CopyOnWriteArrayList<VisitedLocation> userLocations = new CopyOnWriteArrayList<>();
+		userLocations.addAll(user.getVisitedLocations());
+
+		// List<Attraction> attractions = gpsUtil.getAttractions();
+		CopyOnWriteArrayList<Attraction> attractions = new CopyOnWriteArrayList<>();
+		attractions.addAll(gpsUtil.getAttractions());
 
 		for (VisitedLocation visitedLocation : userLocations) {
 			for (Attraction attraction : attractions) {
-				if (user.getUserRewards().stream()
+				if (user.getUserRewards()
+						.stream()
 						.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0
 						&& (nearAttraction(visitedLocation, attraction))) {
 					user.addUserReward(
 							new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
-
 				}
 			}
 		}
+
 	}
 
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {

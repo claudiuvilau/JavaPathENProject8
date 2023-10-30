@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +23,7 @@ import rewardCentral.RewardCentral;
 public class TestRewardsService {
 
 	@Test
-	public void userGetRewards() {
+	public void userGetRewards() throws InterruptedException, ExecutionException {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 
@@ -48,7 +49,7 @@ public class TestRewardsService {
 
 	// @Disabled // Needs fixed - can throw ConcurrentModificationException
 	@Test
-	void nearAllAttractions() {
+	void nearAllAttractions() throws InterruptedException, ExecutionException {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
@@ -60,6 +61,9 @@ public class TestRewardsService {
 		List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
 		tourGuideService.tracker.stopTracking();
 
+		for (Attraction attraction : gpsUtil.getAttractions()) {
+			System.out.println(attraction.attractionName);
+		}
 		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
 	}
 

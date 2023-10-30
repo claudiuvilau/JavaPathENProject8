@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -61,7 +62,7 @@ public class TourGuideService {
 		return user.getUserRewards();
 	}
 
-	public VisitedLocation getUserLocation(User user) {
+	public VisitedLocation getUserLocation(User user) throws InterruptedException, ExecutionException {
 		VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation()
 				: trackUserLocation(user);
 		return visitedLocation;
@@ -90,10 +91,13 @@ public class TourGuideService {
 		return providers;
 	}
 
-	public VisitedLocation trackUserLocation(User user) {
+	public VisitedLocation trackUserLocation(User user) throws InterruptedException, ExecutionException {
+
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+
 		user.addToVisitedLocations(visitedLocation);
 		rewardsService.calculateRewards(user);
+
 		return visitedLocation;
 	}
 

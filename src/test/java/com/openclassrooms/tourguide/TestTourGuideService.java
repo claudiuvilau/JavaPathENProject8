@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ import tripPricer.Provider;
 class TestTourGuideService {
 
 	@Test
-	void getUserLocation() {
+	void getUserLocation() throws InterruptedException, ExecutionException {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 		InternalTestHelper.setInternalUserNumber(0);
@@ -77,7 +78,7 @@ class TestTourGuideService {
 	}
 
 	@Test
-	void trackUser() {
+	void trackUser() throws InterruptedException, ExecutionException {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 		InternalTestHelper.setInternalUserNumber(0);
@@ -93,7 +94,7 @@ class TestTourGuideService {
 
 	// @Disabled // Not yet implemented
 	@Test
-	void getNearbyAttractions() {
+	void getNearbyAttractions() throws InterruptedException, ExecutionException {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 		InternalTestHelper.setInternalUserNumber(0);
