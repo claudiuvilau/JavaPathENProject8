@@ -1,7 +1,10 @@
 package com.openclassrooms.tourguide.service;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Service;
 
@@ -38,27 +41,32 @@ public class RewardsService {
 		proximityBuffer = defaultProximityBuffer;
 	}
 
-	public void calculateRewards(User user) throws InterruptedException, ExecutionException {
+	public void calculateRewards(User user)
+			throws InterruptedException, ExecutionException {
 
-		// List<VisitedLocation> userLocations = user.getVisitedLocations();
-		CopyOnWriteArrayList<VisitedLocation> userLocations = new CopyOnWriteArrayList<>();
-		userLocations.addAll(user.getVisitedLocations());
+		ExecutorService executor = Executors.newFixedThreadPool(10000);
 
-		// List<Attraction> attractions = gpsUtil.getAttractions();
-		CopyOnWriteArrayList<Attraction> attractions = new CopyOnWriteArrayList<>();
-		attractions.addAll(gpsUtil.getAttractions());
+		CompletableFuture.runAsync(() -> {
+			// List<VisitedLocation> userLocations = user.getVisitedLocations();
+			CopyOnWriteArrayList<VisitedLocation> userLocations = new CopyOnWriteArrayList<>();
+			userLocations.addAll(user.getVisitedLocations());
 
-		for (VisitedLocation visitedLocation : userLocations) {
-			for (Attraction attraction : attractions) {
-				if (user.getUserRewards()
-						.stream()
-						.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0
-						&& (nearAttraction(visitedLocation, attraction))) {
-					user.addUserReward(
-							new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+			// List<Attraction> attractions = gpsUtil.getAttractions();
+			CopyOnWriteArrayList<Attraction> attractions = new CopyOnWriteArrayList<>();
+			attractions.addAll(gpsUtil.getAttractions());
+
+			for (VisitedLocation visitedLocation : userLocations) {
+				for (Attraction attraction : attractions) {
+					if (user.getUserRewards()
+							.stream()
+							.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0
+							&& (nearAttraction(visitedLocation, attraction))) {
+						user.addUserReward(
+								new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+					}
 				}
 			}
-		}
+		}, executor);
 
 	}
 

@@ -11,7 +11,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -91,14 +94,51 @@ public class TourGuideService {
 		return providers;
 	}
 
-	public VisitedLocation trackUserLocation(User user) throws InterruptedException, ExecutionException {
+	public VisitedLocation trackUserLocation(User user)
+			throws InterruptedException, ExecutionException {
 
-		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+		// VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+		// user.addToVisitedLocations(visitedLocation);
 
-		user.addToVisitedLocations(visitedLocation);
+		// CompletableFuture<VisitedLocation> completableFuture = new
+		// CompletableFuture<>();
+
+		// Executors.newCachedThreadPool().submit(() -> {
+		// VisitedLocation visitedLocationFuture =
+		// gpsUtil.getUserLocation(user.getUserId());
+		// user.addToVisitedLocations(visitedLocationFuture);
+		// rewardsService.calculateRewards(user);
+		// completableFuture.complete(visitedLocationFuture);
+		// return visitedLocationFuture;
+		// });
+
+		// rewardsService.calculateRewards(user);
+		// return visitedLocation;
+		// return completableFuture.get();
+
+		ExecutorService executor = Executors.newFixedThreadPool(1000);
+
+		CompletableFuture<VisitedLocation> completableFuture = CompletableFuture.supplyAsync(() -> {
+			VisitedLocation visitedLocationFuture = gpsUtil.getUserLocation(user.getUserId());
+			user.addToVisitedLocations(visitedLocationFuture);
+			try {
+				rewardsService.calculateRewards(user);
+			} catch (InterruptedException | ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return visitedLocationFuture;
+		}, executor);
+
+		return completableFuture.get();
+
+	}
+
+	private VisitedLocation testCalculateRewards(User user) throws InterruptedException, ExecutionException {
+		VisitedLocation visitedLocationFuture = gpsUtil.getUserLocation(user.getUserId());
+		user.addToVisitedLocations(visitedLocationFuture);
 		rewardsService.calculateRewards(user);
-
-		return visitedLocation;
+		return visitedLocationFuture;
 	}
 
 	public List<AttractionsNearUser> getNearByAttractions(VisitedLocation visitedLocation) {
