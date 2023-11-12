@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
@@ -46,7 +47,7 @@ class TestPerformance {
 	 * TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 	 */
 
-	// @Disabled
+	@Disabled
 	@Test
 	void highVolumeTrackLocation() throws InterruptedException, ExecutionException {
 		GpsUtil gpsUtil = new GpsUtil();
@@ -77,7 +78,7 @@ class TestPerformance {
 
 	}
 
-	// @Disabled
+	@Disabled
 	@Test
 	void highVolumeGetRewards() {
 		GpsUtil gpsUtil = new GpsUtil();

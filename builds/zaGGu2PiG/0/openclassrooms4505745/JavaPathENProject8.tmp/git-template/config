@@ -1,0 +1,6 @@
+[init]
+	defaultBranch = none
+[fetch]
+	recurseSubmodules = false
+[http "https://gitlab.com"]
+	sslCAInfo = C:\\Users\\kls_k\\OneDrive\\Claudiu - hors connexion\\WorkJavaVisualCode\\tourguide\\JavaPathENProject8\\TourGuide\\builds\\zaGGu2PiG\\0\\openclassrooms4505745\\JavaPathENProject8.tmp\\CI_SERVER_TLS_CA_FILE
